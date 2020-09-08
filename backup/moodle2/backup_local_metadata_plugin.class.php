@@ -30,13 +30,16 @@ class backup_local_metadata_plugin extends backup_local_plugin {
      * Define (add) particular settings this activity can have
      */
     protected function define_my_settings() {
-        // No particular settings for this activity
+        // No particular settings for this activity.
     }
- 
     protected function define_course_plugin_structure() {
 
         $plugin = $this->get_plugin_element(null, null, null);
-        $pluginwrapper = new backup_nested_element($this->get_recommended_name(), array('id'), array('instanceid', 'fieldid', 'data', 'dataformat'));
+        $pluginwrapper = new backup_nested_element(
+            $this->get_recommended_name(),
+            array('id'),
+            array('instanceid', 'fieldid', 'data', 'dataformat')
+        );
         // Connect the visible container ASAP.
         $plugin->add_child($pluginwrapper);
 

@@ -16,12 +16,10 @@
 
 /**
  * Grid Information
- *
  * @package    local_metadata
  * @version    1.0
  * @copyright  &copy; 2020 Kurvin Hendricks khendricks@2u.com
  * @license    http://www.gnu.org/copyleft/gpl.html GNU Public License
- *
  */
 defined('MOODLE_INTERNAL') || die();
 
@@ -57,16 +55,22 @@ class restore_local_metadata_plugin extends restore_local_plugin {
         unset($data->id);
 
         $data->instanceid = $this->task->get_courseid();
-        
 
         if ($data->instanceid) {
-
             $sql = 'SELECT * FROM {local_metadata} WHERE instanceid = ?';
             $params = array('instanceid' => $data->instanceid);
-            
-            if(!$DB->record_exists_sql($sql, $params)) {
-                $DB->insert_record('local_metadata', $data);
+            try {
+                if (!$DB->record_exists_sql($sql, $params)) {
+                    try {
+                        $DB->insert_record('local_metadata', $data);
+                    } catch (Exception $e){
+                        error_log($e->getMessage(), 0);
+                    }
+                }
+            } catch(Exception $e) {
+                error_log($e->getMessage(), 0);
             }
+           
         }
     }
 }
