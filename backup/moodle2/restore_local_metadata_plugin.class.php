@@ -14,63 +14,66 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-/**
- * Grid Information
- * @package    local_metadata
- * @version    1.0
- * @copyright  &copy; 2020 Kurvin Hendricks khendricks@2u.com
- * @license    http://www.gnu.org/copyleft/gpl.html GNU Public License
- */
 defined('MOODLE_INTERNAL') || die();
 
 /**
- * Restore plugin class that provides the necessary information
- * needed to restore metadata
+ * Used when restoring data created by the plugin.
  */
-
 class restore_local_metadata_plugin extends restore_local_plugin {
 
     /**
-     * Returns the paths to be handled by the plugin at course level.
-     */
-    protected function define_course_plugin_structure() {
-
+     * Return the paths of the module data along with the function used for restoring that data.
+    */
+    protected function define_module_plugin_structure() {
         $paths = array();
 
-        $elename = 'plugin_local_metatdata_course'; // This defines the postfix of 'process_*' below.
+        $elename = 'metadata';
         $elepath = $this->get_pathfor('/');
         $paths[] = new restore_path_element($elename, $elepath);
-        return $paths; // And we return the interesting paths.
+
+        return $paths;
+
     }
 
-
     /**
-     * Process the metadata element.
+     * Restore the Local meta data for this module.
+     *
+     * @param object $data object The data we are restoring.
+     * @throws dml_exception but catch to prevent
+     * backup from restoring.
      */
-    public function process_plugin_local_metatdata_course($data) {
-        global $DB, $COURSE;
+    public function process_metadata($data) {
+        global $DB;
 
-        $data = (object)$data;
-        $oldid = $data->id;
-        unset($data->id);
+        try {
+            $fieldexists = $DB->record_exists(
+            'local_metadata_field',
+            array('shortname' => $data->shorname)
+            );
 
-        $data->instanceid = $this->task->get_courseid();
-
-        if ($data->instanceid) {
-            $sql = 'SELECT * FROM {local_metadata} WHERE instanceid = ?';
-            $params = array('instanceid' => $data->instanceid);
-            try {
-                if (!$DB->record_exists_sql($sql, $params)) {
-                    try {
-                        $DB->insert_record('local_metadata', $data);
-                    } catch (Exception $e){
-                        error_log($e->getMessage(), 0);
-                    }
-                }
-            } catch(Exception $e) {
-                error_log($e->getMessage(), 0);
+            if ($fieldexists) {
+                $fieldid = $DB->get_record('local_metadata_field', array('shortname' => $data->shortname))->id;
             }
-           
+
+            if ($fieldid != $data->fieldid) {
+                $data->fieldid = $fieldid;
+            }
+
+            unset($data->shortname);
+
+            $recexists = $DB->record_exists(
+                'local_metadata',
+                array('fieldid' => $data->fieldid, 'instanceid' => $this->task->get_moduleid())
+            );
+
+            if (!$recexists) {
+                $data = (object)$data;
+                $data->instanceid = $this->task->get_moduleid();
+
+                $DB->insert_record('local_metadata', $data);
+            }
+        } catch (Exception $e) {
+            
         }
     }
 }

@@ -14,38 +14,28 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-/**
- * @package    local_metadata
- * @version    1.0
- * @copyright  &copy; 2020 Kurvin Hendricks khendricks@2u.com
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
-
-
 defined('MOODLE_INTERNAL') || die();
 
-
 class backup_local_metadata_plugin extends backup_local_plugin {
-    /**
-     * Define (add) particular settings this activity can have
-     */
-    protected function define_my_settings() {
-        // No particular settings for this activity.
-    }
-    protected function define_course_plugin_structure() {
 
-        $plugin = $this->get_plugin_element(null, null, null);
+    /**
+     * Required by Moodle's backup tool to define the plugin structure.
+     *
+     * @return backup_plugin_element
+     * @throws backup_step_exception
+     * @throws base_element_struct_exception
+     */    
+    protected function define_module_plugin_structure() {
+        $plugin = $this->get_plugin_element();
         $pluginwrapper = new backup_nested_element(
             $this->get_recommended_name(),
             array('id'),
-            array('instanceid', 'fieldid', 'data', 'dataformat')
+            array('instanceid', 'fieldid', 'data', 'dataformat', 'shortname')
         );
-        // Connect the visible container ASAP.
         $plugin->add_child($pluginwrapper);
 
-        $courseid = $this->task->get_courseid();
         // Set source to populate the data.
-        $pluginwrapper->set_source_sql("SELECT id, instanceid, fieldid, data, dataformat FROM {local_metadata} WHERE instanceid = $courseid", array());
+        $pluginwrapper->set_source_sql("SELECT lm.id, instanceid, fieldid, data, dataformat, shortname FROM {local_metadata} lm left join {local_metadata_field} lmf on lm.fieldid = lmf.id  where instanceid = ?", array(backup_helper::is_sqlparam($this->task->get_moduleid())));
 
         return $plugin;
     }
