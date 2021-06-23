@@ -43,9 +43,8 @@ class backup_local_metadata_plugin extends backup_local_plugin {
         // Connect the visible container ASAP.
         $plugin->add_child($pluginwrapper);
 
-        $courseid = $this->task->get_courseid();
         // Set source to populate the data.
-        $pluginwrapper->set_source_sql("SELECT id, instanceid, fieldid, data, dataformat FROM {local_metadata} WHERE instanceid = $courseid", array());
+        $pluginwrapper->set_source_sql("SELECT id, instanceid, fieldid, data, dataformat FROM {local_metadata}", array());
 
         return $plugin;
     }
