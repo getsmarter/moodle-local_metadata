@@ -33,24 +33,16 @@ class backup_local_metadata_plugin extends backup_local_plugin {
         // No particular settings for this activity.
     }
     protected function define_course_plugin_structure() {
-
         $plugin = $this->get_plugin_element(null, null, null);
         $pluginwrapper = new backup_nested_element(
             $this->get_recommended_name(),
             array('id'),
             array('instanceid', 'fieldid', 'data', 'dataformat')
         );
-
         // Connect the visible container ASAP.
         $plugin->add_child($pluginwrapper);
-
-        //$courseid = $this->task->get_courseid();
-        $contextid = $this->task->get_contextid();
-//        var_dump($this->task->get_steps());
-//        die();
         // Set source to populate the data.
-        $pluginwrapper->set_source_sql("SELECT id, instanceid, fieldid, data, dataformat FROM {local_metadata} WHERE instanceid = 2102", array());
-
+        $pluginwrapper->set_source_sql("SELECT id, instanceid, fieldid, data, dataformat FROM {local_metadata}", array());
         return $plugin;
     }
 }

@@ -54,11 +54,10 @@ class restore_local_metadata_plugin extends restore_local_plugin {
         $oldid = $data->id;
         unset($data->id);
 
-        $data->instanceid = $this->task->get_contextid();
-
         if ($data->instanceid) {
             $sql = 'SELECT * FROM {local_metadata} WHERE instanceid = ?';
-            $params = array('instanceid' => 2102);
+
+            $params = array('instanceid' => $data->instanceid);
             try {
                 if (!$DB->record_exists_sql($sql, $params)) {
                     try {
@@ -73,4 +72,5 @@ class restore_local_metadata_plugin extends restore_local_plugin {
 
         }
     }
+
 }
