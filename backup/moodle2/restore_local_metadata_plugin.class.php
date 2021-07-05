@@ -48,7 +48,7 @@ class restore_local_metadata_plugin extends restore_local_plugin {
         try {
             $fieldexists = $DB->record_exists(
             'local_metadata_field',
-            array('shortname' => $data->shorname)
+            array('shortname' => $data->shortname)
             );
 
             if ($fieldexists) {
@@ -73,7 +73,7 @@ class restore_local_metadata_plugin extends restore_local_plugin {
                 $DB->insert_record('local_metadata', $data);
             }
         } catch (Exception $e) {
-            
+
         }
     }
 }
