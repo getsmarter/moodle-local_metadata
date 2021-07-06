@@ -48,22 +48,22 @@ class restore_local_metadata_plugin extends restore_local_plugin {
         try {
             $fieldexists = $DB->record_exists(
             'local_metadata_field',
-            array('shortname' => $data->shortname)
+            array('shortname' => $data['shortname'])
             );
 
             if ($fieldexists) {
-                $fieldid = $DB->get_record('local_metadata_field', array('shortname' => $data->shortname))->id;
+                $fieldid = $DB->get_record('local_metadata_field', array('shortname' => $data['shortname']))->id;
             }
 
-            if ($fieldid != $data->fieldid) {
-                $data->fieldid = $fieldid;
+            if ($fieldid != $data['fieldid']) {
+                $data['fieldid'] = $fieldid;
             }
 
-            unset($data->shortname);
+            unset($data['shortname']);
 
             $recexists = $DB->record_exists(
                 'local_metadata',
-                array('fieldid' => $data->fieldid, 'instanceid' => $this->task->get_moduleid())
+                array('fieldid' => $data['fieldid'], 'instanceid' => $this->task->get_moduleid())
             );
 
             if (!$recexists) {
